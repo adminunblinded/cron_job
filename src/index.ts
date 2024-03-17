@@ -4,6 +4,7 @@ import moment from 'moment-timezone';
 
 const urlHourly = 'https://flask-production-d5a3.up.railway.app/authorize';
 const urlDaily = 'https://flask-production-d5a3.up.railway.app';
+const urlZapier = 'https://hooks.zapier.com/hooks/catch/15640277/3fgumh1/';
 
 // Set the desired time zone
 const desiredTimeZone = 'America/New_York';
@@ -37,7 +38,7 @@ cron.schedule(desiredTime.format('m H * * *'), () => {
       console.error(`An error occurred while executing Daily URL ${urlDaily}: ${error}`);
     });
 });
-
+// Additional cron job to trigger a job every hour for 8x8
 cron.schedule('0 * * * *', () => {
   axios.get('https://nodejs-production-d518.up.railway.app/trigger-job')
     .then((response) => {
@@ -46,5 +47,16 @@ cron.schedule('0 * * * *', () => {
     })
     .catch((error) => {
       console.error(`An error occurred while executing Hourly Trigger URL: ${error}`);
+    });
+});
+
+// Schedule cron job to run daily at 12:00 AM and send a POST request to Zapier URL
+cron.schedule('0 0 * * *', () => {
+  axios.post(urlZapier, { message: 'Daily job executed' })
+    .then((response) => {
+      console.log(`Daily job executed successfully. Response: `, response.data);
+    })
+    .catch((error) => {
+      console.error(`An error occurred while executing the daily job: ${error}`);
     });
 });
